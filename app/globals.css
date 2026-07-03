@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-display: var(--font-young-serif), Georgia, serif;
+  --font-sans: var(--font-schibsted), system-ui, sans-serif;
+  --font-mono: var(--font-spline-mono), ui-monospace, monospace;
+
+  --color-paper: #f4efe3;
+  --color-card: #fffdf6;
+  --color-ink: #23262f;
+  --color-ink-soft: #6b6d78;
+  --color-ink-faint: #9a9ba5;
+  --color-accent: #c8401f;
+  --color-accent-soft: #f6e0d9;
+  --color-rule: #ddd5c2;
+  --color-rule-soft: #eae4d3;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  /* faint ledger dot-grid */
+  background-image: radial-gradient(rgba(35, 38, 47, 0.055) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Stacked-paper card: ink border + hard offset shadow */
+.paper-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-ink);
+  border-radius: 10px;
+  box-shadow: 4px 4px 0 rgba(35, 38, 47, 0.12);
+}
+
+/* Stamped label: mono, uppercase, letterspaced, bordered */
+.stamp {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 3px 6px;
+  white-space: nowrap;
+}
+
+.tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.pulse-soft {
+  animation: pulse-soft 1.4s ease-in-out infinite;
+}
+
+::selection {
+  background: var(--color-accent-soft);
+}
