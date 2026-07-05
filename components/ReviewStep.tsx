@@ -79,122 +79,107 @@ export default function ReviewStep({ course, response, onConfirm, onCancel }: Pr
   };
 
   return (
-    <div className="rise-in mx-auto max-w-4xl">
-      <div className="paper-card overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink px-6 py-4">
+    <div className="rise-in mx-auto max-w-[520px]">
+      <div className="overflow-hidden rounded-[6px] border border-edge bg-panel">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-edge px-4 py-[14px]">
           <div>
-            <h2 className="font-display text-2xl">Check the dates</h2>
-            <p className="mt-0.5 text-sm text-ink-soft">
+            <h2 className="font-display text-[19px]">Check the dates</h2>
+            <p className="mt-0.5 text-[11px] text-text-soft">
               Fix anything the parser got wrong, untick what you don&apos;t want.
             </p>
           </div>
           <span
-            className="stamp"
-            style={{ color: color.ink, backgroundColor: color.tint }}
+            className="rounded-[3px] px-2 py-1 font-mono text-[10px]"
+            style={{ backgroundColor: color.tint, color: "#10141b" }}
           >
             {course.name}
           </span>
         </div>
 
         {response.warning && (
-          <p className="border-b border-rule bg-accent-soft px-6 py-2.5 text-sm text-accent">
+          <p className="border-b border-edge px-4 py-2.5 text-[11px] text-accent">
             {response.warning}
           </p>
         )}
 
         {rows.length === 0 ? (
-          <p className="px-6 py-10 text-center text-sm text-ink-soft">
+          <p className="px-4 py-10 text-center text-[11.5px] text-text-soft">
             No dates were found in this file. You can add events by hand below,
             or go back and try a cleaner copy of the syllabus.
           </p>
         ) : (
-          <div className="max-h-[26rem] overflow-y-auto">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-card">
-                <tr className="border-b border-rule text-left">
-                  <th className="w-10 px-3 py-2"></th>
-                  <th className="px-2 py-2 font-normal text-ink-soft">Date</th>
-                  <th className="px-2 py-2 font-normal text-ink-soft">What</th>
-                  <th className="px-2 py-2 font-normal text-ink-soft">Type</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className={`border-b border-dashed border-rule-soft transition-opacity ${
-                      row.included ? "" : "opacity-40"
-                    }`}
-                  >
-                    <td className="px-3 py-1.5">
-                      <input
-                        type="checkbox"
-                        checked={row.included}
-                        onChange={(e) => update(row.id, { included: e.target.checked })}
-                        className="h-4 w-4"
-                        style={{ accentColor: "var(--color-accent)" }}
-                      />
-                    </td>
-                    <td className="px-2 py-1.5">
-                      <input
-                        type="date"
-                        value={row.date}
-                        onChange={(e) => update(row.id, { date: e.target.value })}
-                        className="tabular rounded border border-transparent bg-transparent px-1 py-0.5 text-xs hover:border-rule focus:border-ink focus:outline-none"
-                      />
-                    </td>
-                    <td className="w-full px-2 py-1.5">
-                      <input
-                        type="text"
-                        value={row.title}
-                        placeholder="Event title"
-                        onChange={(e) => update(row.id, { title: e.target.value })}
-                        className="w-full rounded border border-transparent bg-transparent px-1 py-0.5 hover:border-rule focus:border-ink focus:outline-none"
-                      />
-                    </td>
-                    <td className="px-2 py-1.5">
-                      <select
-                        value={row.type}
-                        onChange={(e) => update(row.id, { type: e.target.value as EventType })}
-                        className="rounded border border-transparent bg-transparent px-1 py-0.5 text-xs hover:border-rule focus:border-ink focus:outline-none"
-                      >
-                        {EVENT_TYPES.map((t) => (
-                          <option key={t} value={t}>
-                            {EVENT_TYPE_LABELS[t]}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="max-h-[26rem] overflow-y-auto px-4 pb-0.5 pt-1.5">
+            {rows.map((row) => (
+              <div
+                key={row.id}
+                data-review-row
+                className={`flex items-baseline gap-2.5 border-b border-edge-soft py-[7px] font-mono transition-opacity duration-[120ms] ${
+                  row.included ? "" : "opacity-40"
+                }`}
+              >
+                <label className="relative cursor-pointer select-none text-[11px]">
+                  <input
+                    type="checkbox"
+                    checked={row.included}
+                    onChange={(e) => update(row.id, { included: e.target.checked })}
+                    className="absolute inset-0 cursor-pointer appearance-none"
+                  />
+                  <span aria-hidden className={row.included ? "text-mint" : "text-text-faint"}>
+                    {row.included ? "[x]" : "[ ]"}
+                  </span>
+                </label>
+                <input
+                  type="date"
+                  value={row.date}
+                  onChange={(e) => update(row.id, { date: e.target.value })}
+                  className="w-[82px] shrink-0 rounded-[3px] border border-transparent bg-transparent font-mono text-[11px] text-text-soft transition-colors duration-[120ms] hover:border-edge focus:border-dash focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden"
+                />
+                <input
+                  type="text"
+                  value={row.title}
+                  placeholder="Event title"
+                  onChange={(e) => update(row.id, { title: e.target.value })}
+                  className="min-w-0 flex-1 rounded-[3px] border border-transparent bg-transparent px-1 font-sans text-[12.5px] text-text transition-colors duration-[120ms] placeholder:text-text-faint hover:border-edge focus:border-dash focus:outline-none"
+                />
+                <select
+                  value={row.type}
+                  onChange={(e) => update(row.id, { type: e.target.value as EventType })}
+                  className="max-w-[110px] appearance-none rounded-[3px] border border-transparent bg-transparent font-mono text-[9px] uppercase tracking-[0.08em] text-text-faint transition-colors duration-[120ms] hover:border-edge focus:border-dash focus:outline-none"
+                >
+                  {EVENT_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {EVENT_TYPE_LABELS[t]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
           </div>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-edge px-4 py-3">
           <button
             type="button"
             onClick={addRow}
-            className="text-sm text-ink-soft underline decoration-dashed underline-offset-4 hover:text-ink"
+            className="font-mono text-[10px] tracking-[0.06em] text-text-soft transition-colors duration-[120ms] hover:text-text"
           >
-            + add an event by hand
+            + ADD EVENT BY HAND
           </button>
-          <div className="flex gap-3">
+          <div className="flex gap-2 font-mono text-[10.5px]">
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-md border border-ink px-4 py-2 text-sm hover:bg-paper"
+              className="rounded-[4px] border border-edge px-3 py-[7px] text-text-soft transition-colors duration-[120ms] hover:border-dash hover:text-text"
             >
-              Cancel
+              CANCEL
             </button>
             <button
               type="button"
               onClick={confirm}
               disabled={includedCount === 0}
-              className="rounded-md border border-ink bg-ink px-4 py-2 text-sm text-card shadow-[3px_3px_0_rgba(35,38,47,0.25)] transition-transform hover:-translate-y-0.5 disabled:opacity-40"
+              className="rounded-[4px] bg-accent px-3 py-[7px] font-semibold text-night transition-colors duration-[120ms] hover:bg-accent-bright disabled:opacity-40"
             >
-              Add {includedCount} event{includedCount === 1 ? "" : "s"} to calendar →
+              COMMIT {includedCount} EVENT{includedCount === 1 ? "" : "S"} →
             </button>
           </div>
         </div>

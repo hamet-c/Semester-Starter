@@ -58,44 +58,44 @@ export default function UploadStep({ courseCount, aiEnabled, onParsed }: Props) 
   );
 
   return (
-    <div className="rise-in mx-auto max-w-2xl">
-      <div className="paper-card p-6 sm:p-8">
-        <h2 className="font-display text-2xl">Add a syllabus</h2>
-        <p className="mt-1 text-sm text-ink-soft">
-          One syllabus per course. Every date it mentions ends up on your calendar.
+    <div className="rise-in mx-auto max-w-[460px]">
+      <div className="rounded-[6px] border border-edge bg-panel p-5">
+        <h2 className="font-display text-[21px]">Add a syllabus</h2>
+        <p className="mt-1 text-[11.5px] text-text-soft">
+          One per course. Every date it mentions ends up on the calendar.
         </p>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-[1fr_auto]">
-          <label className="block">
-            <span className="stamp text-ink-soft">Course name</span>
-            <input
-              type="text"
-              value={courseName}
-              onChange={(e) => setCourseName(e.target.value)}
-              placeholder="e.g. HIST 210 — Modern Europe"
-              className="mt-2 w-full rounded-md border border-ink bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/40"
-            />
-          </label>
+        <div className="mt-4 font-mono text-[9px] uppercase tracking-[0.16em] text-text-faint">
+          COURSE_NAME:
+        </div>
+        <input
+          type="text"
+          value={courseName}
+          onChange={(e) => setCourseName(e.target.value)}
+          placeholder="HIST 210 — Modern Europe"
+          className="mt-1.5 w-full rounded-[4px] border border-edge bg-night px-2.5 py-2 font-mono text-[12px] text-text outline-none transition-colors duration-[120ms] placeholder:text-text-faint focus:border-dash"
+        />
 
-          <div>
-            <span className="stamp text-ink-soft">Color</span>
-            <div className="mt-2 flex gap-1.5">
-              {COURSE_COLORS.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  title={c.label}
-                  onClick={() => setColorId(c.id)}
-                  className="h-7 w-7 rounded-full border-2 transition-transform hover:scale-110"
-                  style={{
-                    backgroundColor: c.tint,
-                    borderColor: c.ink,
-                    boxShadow: colorId === c.id ? `0 0 0 2px var(--color-card), 0 0 0 4px ${c.ink}` : "none",
-                  }}
-                />
-              ))}
-            </div>
-          </div>
+        <div className="mt-[13px] font-mono text-[9px] uppercase tracking-[0.16em] text-text-faint">
+          COLOR:
+        </div>
+        <div className="mt-2 flex gap-[7px]">
+          {COURSE_COLORS.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              title={c.label}
+              onClick={() => setColorId(c.id)}
+              className="h-[22px] w-[22px] rounded-[4px] transition-transform duration-[120ms] hover:scale-110"
+              style={{
+                backgroundColor: c.tint,
+                boxShadow:
+                  colorId === c.id
+                    ? `0 0 0 2px var(--color-panel), 0 0 0 4px ${c.tint}`
+                    : "none",
+              }}
+            />
+          ))}
         </div>
 
         <div
@@ -111,10 +111,8 @@ export default function UploadStep({ courseCount, aiEnabled, onParsed }: Props) 
             if (file) void handleFile(file);
           }}
           onClick={() => inputRef.current?.click()}
-          className={`mt-6 cursor-pointer rounded-lg border-2 border-dashed p-10 text-center transition-colors ${
-            dragging
-              ? "border-accent bg-accent-soft"
-              : "border-rule bg-paper/60 hover:border-ink-soft"
+          className={`mt-4 cursor-pointer rounded-[6px] border bg-night p-[26px] text-center transition-colors duration-[120ms] ${
+            dragging ? "border-solid border-mint" : "border-dashed border-dash"
           }`}
         >
           <input
@@ -130,8 +128,10 @@ export default function UploadStep({ courseCount, aiEnabled, onParsed }: Props) 
           />
           {parsing ? (
             <div className="pulse-soft">
-              <p className="font-display text-lg">Reading the syllabus…</p>
-              <p className="mt-1 text-sm text-ink-soft">
+              <p className="font-mono text-[13px] tracking-[0.04em]">
+                &gt; READING SYLLABUS<span className="blink">_</span>
+              </p>
+              <p className="mt-[5px] text-[11px] text-text-soft">
                 {aiEnabled
                   ? "Claude is extracting every date — this can take up to a minute."
                   : "Scanning for dates…"}
@@ -139,33 +139,34 @@ export default function UploadStep({ courseCount, aiEnabled, onParsed }: Props) 
             </div>
           ) : (
             <>
-              <p className="font-display text-lg">Drop the syllabus here</p>
-              <p className="mt-1 text-sm text-ink-soft">
-                or click to browse — <span className="tabular">.pdf · .docx · .txt</span>
+              <p className={`font-mono text-[13px] tracking-[0.04em] ${dragging ? "text-mint" : ""}`}>
+                &gt; DROP SYLLABUS HERE<span className="blink">_</span>
+              </p>
+              <p className={`mt-[5px] text-[11px] ${dragging ? "text-mint" : "text-text-soft"}`}>
+                or click to browse — .pdf · .docx · .txt
               </p>
             </>
           )}
         </div>
 
         {error && (
-          <p className="mt-4 rounded-md border border-accent bg-accent-soft px-3 py-2 text-sm text-accent">
+          <p className="mt-3 rounded-[4px] border border-accent/50 px-3 py-2 text-[11.5px] text-accent">
             {error}
           </p>
         )}
 
-        <div className="mt-6 flex items-center justify-between border-t border-dashed border-rule pt-4">
-          <span className="text-xs text-ink-soft">
-            Parsing mode
-          </span>
+        <div className="mt-[14px] flex items-center justify-between border-t border-edge pt-2.5 font-mono text-[9.5px] tracking-[0.1em]">
+          <span className="text-text-faint">PARSER</span>
           {aiEnabled === null ? (
-            <span className="stamp text-ink-faint">checking…</span>
+            <span className="pulse-soft text-text-faint">● CHECKING…</span>
           ) : aiEnabled ? (
-            <span className="stamp" style={{ color: "#2c6e49" }}>
-              ● AI parsing ready
-            </span>
+            <span className="text-mint">● AI READY</span>
           ) : (
-            <span className="stamp text-ink-soft" title="Add ANTHROPIC_API_KEY to .env.local for AI parsing">
-              basic mode — no API key
+            <span
+              className="text-text-soft"
+              title="Add ANTHROPIC_API_KEY to .env.local for AI parsing"
+            >
+              ● BASIC MODE — NO API KEY
             </span>
           )}
         </div>

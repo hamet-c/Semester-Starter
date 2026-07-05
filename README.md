@@ -20,6 +20,18 @@ Then open http://localhost:3000.
 3. **Calendar** — month grid and semester agenda, color-coded per course.
    Everything is saved in your browser (localStorage), so it survives reloads.
 
+## Export to other calendars
+
+The calendar sidebar has a **↓ Download .ics** button that exports every event
+as a standard iCalendar file. Import it into:
+
+- **Google Calendar** — Settings → Import & export → Import
+- **Apple Calendar** — File → Import (or double-click the file)
+- **Outlook** — File → Open & Export → Import/Export
+
+Events are exported as all-day entries with the course name in the title and
+the event type in the description.
+
 ## AI parsing (recommended)
 
 Out of the box the app uses rule-based date detection, which works but is

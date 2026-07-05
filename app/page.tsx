@@ -14,6 +14,12 @@ interface Pending {
   response: ParseResponse;
 }
 
+function termLabel(date: Date) {
+  const m = date.getMonth();
+  const term = m >= 7 ? "FALL" : m >= 4 ? "SUMMER" : "SPRING";
+  return `${term}.${date.getFullYear()}`;
+}
+
 export default function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -67,44 +73,39 @@ export default function Home() {
     setEvents((es) => es.filter((e) => e.courseId !== id));
   };
 
-  const steps: Array<{ id: Step; n: string; label: string; enabled: boolean }> = [
-    { id: "upload", n: "01", label: "Upload", enabled: true },
-    { id: "review", n: "02", label: "Review", enabled: pending !== null },
-    { id: "calendar", n: "03", label: "Calendar", enabled: events.length > 0 || step === "calendar" },
+  const steps: Array<{ id: Step; label: string; enabled: boolean }> = [
+    { id: "upload", label: "[01 UPLOAD]", enabled: true },
+    { id: "review", label: "[02 REVIEW]", enabled: pending !== null },
+    { id: "calendar", label: "[03 CALENDAR]", enabled: events.length > 0 || step === "calendar" },
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      {/* ── Masthead ─────────────────────────────────── */}
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-5">
-        <div>
-          <h1 className="font-display text-4xl tracking-tight sm:text-5xl">
-            Semester
-            <span className="ml-2 inline-block -rotate-2 align-middle">
-              <span className="stamp text-accent">est. {new Date().getFullYear()}</span>
-            </span>
+    <div className="flex min-h-screen flex-col">
+      {/* ── Header bar ───────────────────────────────── */}
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-edge px-[22px] py-[14px]">
+        <div className="flex flex-wrap items-baseline gap-3">
+          <h1 className="font-mono text-[15px] font-semibold tracking-[0.06em]">
+            SEMESTER<span className="text-accent">//</span>
+            {termLabel(new Date())}
           </h1>
-          <p className="mt-1.5 text-sm text-ink-soft">
-            Every syllabus, one calendar — due dates, exams, readings, all of it.
-          </p>
+          <p className="text-[11px] text-text-soft">every syllabus, one calendar</p>
         </div>
 
-        <nav className="flex gap-1.5">
+        <nav className="flex gap-1.5 font-mono text-[10px] tracking-[0.06em]">
           {steps.map((s) => (
             <button
               key={s.id}
               type="button"
               disabled={!s.enabled}
               onClick={() => s.enabled && setStep(s.id)}
-              className={`rounded-md border px-3 py-1.5 text-xs transition-colors ${
+              className={`px-[10px] py-[5px] transition-colors duration-[120ms] ${
                 step === s.id
-                  ? "border-ink bg-ink text-card"
+                  ? "border border-text bg-text text-night"
                   : s.enabled
-                    ? "border-rule hover:border-ink"
-                    : "border-rule-soft text-ink-faint"
+                    ? "border border-edge text-text-soft hover:border-dash hover:text-text"
+                    : "border border-edge-soft text-text-faint"
               }`}
             >
-              <span className="tabular mr-1.5">{s.n}</span>
               {s.label}
             </button>
           ))}
@@ -112,33 +113,38 @@ export default function Home() {
       </header>
 
       {/* ── Active step ──────────────────────────────── */}
-      {!hydrated ? null : step === "upload" ? (
-        <UploadStep
-          courseCount={courses.length}
-          aiEnabled={aiEnabled}
-          onParsed={handleParsed}
-        />
-      ) : step === "review" && pending ? (
-        <ReviewStep
-          course={pending.course}
-          response={pending.response}
-          onConfirm={handleConfirm}
-          onCancel={handleCancelReview}
-        />
-      ) : (
-        <CalendarView
-          courses={courses}
-          events={events}
-          onDeleteEvent={deleteEvent}
-          onRemoveCourse={removeCourse}
-          onAddSyllabus={() => setStep("upload")}
-        />
-      )}
+      <main className="mx-auto w-full max-w-[1124px] flex-1 px-[22px] py-[18px]">
+        {!hydrated ? null : step === "upload" ? (
+          <UploadStep
+            courseCount={courses.length}
+            aiEnabled={aiEnabled}
+            onParsed={handleParsed}
+          />
+        ) : step === "review" && pending ? (
+          <ReviewStep
+            course={pending.course}
+            response={pending.response}
+            onConfirm={handleConfirm}
+            onCancel={handleCancelReview}
+          />
+        ) : (
+          <CalendarView
+            courses={courses}
+            events={events}
+            onDeleteEvent={deleteEvent}
+            onRemoveCourse={removeCourse}
+            onAddSyllabus={() => setStep("upload")}
+          />
+        )}
+      </main>
 
-      <footer className="mt-12 border-t border-dashed border-rule pt-4 text-center text-xs text-ink-faint">
-        Runs locally — your syllabi and calendar never leave this machine
-        {aiEnabled ? " (except the syllabus text sent to the Claude API for parsing)" : ""}.
-      </footer>
+      {/* Calendar shows this line in its sidebar instead */}
+      {step !== "calendar" && (
+        <footer className="px-[22px] pb-[18px] text-center font-mono text-[9px] tracking-[0.08em] text-text-faint">
+          ● LOCAL ONLY — DATA NEVER LEAVES THIS MACHINE
+          {aiEnabled ? " (SYLLABUS TEXT IS SENT TO THE CLAUDE API FOR PARSING)" : ""}
+        </footer>
+      )}
     </div>
   );
 }

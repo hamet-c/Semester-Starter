@@ -25,15 +25,15 @@ const SAMPLE = path.resolve(process.cwd(), "samples/HIST210-syllabus.txt");
 
   // ── 2. Review step ──
   await page.getByText("Check the dates").waitFor({ timeout: 90000 });
-  const rows = await page.locator("tbody tr").count();
-  console.log("step 2: review table rows:", rows);
+  const rows = await page.locator("[data-review-row]").count();
+  console.log("step 2: review rows:", rows);
   if (rows < 10) throw new Error("Too few parsed rows: " + rows);
   await page.screenshot({ path: path.join(SHOTS, "2-review.png") });
 
   // Untick the first row to test include/exclude
-  await page.locator('tbody tr input[type="checkbox"]').first().uncheck();
+  await page.locator('[data-review-row] input[type="checkbox"]').first().uncheck();
 
-  await page.getByRole("button", { name: /Add \d+ events to calendar/ }).click();
+  await page.getByRole("button", { name: /COMMIT \d+ EVENTS?/ }).click();
 
   // ── 3. Calendar step ──
   await page.getByRole("button", { name: "Agenda" }).waitFor({ timeout: 10000 });
@@ -53,6 +53,18 @@ const SAMPLE = path.resolve(process.cwd(), "samples/HIST210-syllabus.txt");
   // Sidebar course count
   const sidebar = await page.getByText("HIST 210 — Modern Europe").count();
   console.log("  course in sidebar:", sidebar > 0);
+
+  // ── 3b. Export to .ics ──
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("button", { name: /DOWNLOAD \.ICS/ }).click(),
+  ]);
+  const ics = require("fs").readFileSync(await download.path(), "utf8");
+  const vevents = ics.split("BEGIN:VEVENT").length - 1;
+  if (!ics.startsWith("BEGIN:VCALENDAR") || !ics.includes("Response paper 1 due")) {
+    throw new Error("ICS export malformed");
+  }
+  console.log("  ics export:", download.suggestedFilename(), "—", vevents, "events");
 
   // ── 4. Persistence: reload, should land on calendar with data intact ──
   await page.reload({ waitUntil: "networkidle" });

@@ -15,6 +15,7 @@ import {
   startOfWeek,
 } from "date-fns";
 import { getColor } from "@/lib/colors";
+import { buildIcs } from "@/lib/ics";
 import {
   EVENT_TYPE_LABELS,
   type Course,
@@ -29,7 +30,7 @@ interface Props {
   onAddSyllabus: () => void;
 }
 
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 /** Expand multi-day events into one entry per day (capped for safety). */
 function occurrencesByDay(events: SyllabusEvent[]): Map<string, SyllabusEvent[]> {
@@ -48,6 +49,11 @@ function occurrencesByDay(events: SyllabusEvent[]): Map<string, SyllabusEvent[]>
   }
   return map;
 }
+
+const pillBase =
+  "rounded-[3px] px-[9px] py-1 font-mono text-[10px] transition-colors duration-[120ms]";
+const pillIdle =
+  "border border-edge text-text-soft hover:border-dash hover:text-text";
 
 export default function CalendarView({
   courses,
@@ -111,84 +117,103 @@ export default function CalendarView({
 
   const courseFor = (id: string) => courses.find((c) => c.id === id);
 
+  const exportIcs = () => {
+    const blob = new Blob([buildIcs(courses, events)], {
+      type: "text/calendar;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "semester-calendar.ics";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <div className="rise-in grid gap-6 lg:grid-cols-[1fr_240px]">
-      {/* ── Main panel ─────────────────────────────────── */}
-      <div className="paper-card overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink px-5 py-4">
+    <div className="rise-in grid gap-4 lg:grid-cols-[1fr_224px]">
+      {/* ── Calendar panel ─────────────────────────────── */}
+      <div className="overflow-hidden rounded-[6px] border border-edge bg-panel">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-edge px-4 py-3">
           {view === "month" ? (
-            <div className="flex items-center gap-3">
-              <h2 className="font-display text-2xl">{format(cursor, "MMMM")}</h2>
-              <span className="tabular text-lg text-ink-soft">{format(cursor, "yyyy")}</span>
+            <div className="flex items-baseline gap-2.5">
+              <h2 className="font-display text-[22px]">{format(cursor, "MMMM")}</h2>
+              <span className="font-mono text-[12px] text-text-soft">
+                {format(cursor, "yyyy.MM")}
+              </span>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <h2 className="font-display text-2xl">Semester agenda</h2>
+            <div className="flex items-baseline gap-2.5">
+              <h2 className="font-display text-[22px]">Agenda</h2>
               {agendaGroups.length > 0 && (
-                <span className="tabular text-sm text-ink-soft">
+                <span className="font-mono text-[12px] text-text-soft">
                   {format(parseISO(agendaGroups[0].date), "MMM d")} –{" "}
                   {format(parseISO(agendaGroups[agendaGroups.length - 1].date), "MMM d, yyyy")}
                 </span>
               )}
             </div>
           )}
-          <div className="flex items-center gap-2">
-            <div className="flex overflow-hidden rounded-md border border-ink text-xs">
-              <button
-                type="button"
-                onClick={() => setView("month")}
-                className={`px-3 py-1.5 ${view === "month" ? "bg-ink text-card" : "hover:bg-paper"}`}
-              >
-                Month
-              </button>
-              <button
-                type="button"
-                onClick={() => setView("agenda")}
-                className={`border-l border-ink px-3 py-1.5 ${view === "agenda" ? "bg-ink text-card" : "hover:bg-paper"}`}
-              >
-                Agenda
-              </button>
-            </div>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setView("month")}
+              className={`${pillBase} ${
+                view === "month" ? "bg-accent text-night" : pillIdle
+              }`}
+            >
+              MONTH
+            </button>
+            <button
+              type="button"
+              onClick={() => setView("agenda")}
+              className={`${pillBase} ${
+                view === "agenda" ? "bg-accent text-night" : pillIdle
+              }`}
+            >
+              AGENDA
+            </button>
             {view === "month" && (
-              <div className="flex overflow-hidden rounded-md border border-ink text-sm">
+              <>
                 <button
                   type="button"
                   aria-label="Previous month"
                   onClick={() => setCursor((c) => addMonths(c, -1))}
-                  className="px-2.5 py-1 hover:bg-paper"
+                  className={`${pillBase} ${pillIdle} ml-2`}
                 >
                   ←
                 </button>
                 <button
                   type="button"
                   onClick={() => setCursor(startOfMonth(new Date()))}
-                  className="border-x border-ink px-2.5 py-1 text-xs hover:bg-paper"
+                  className={`${pillBase} ${pillIdle}`}
                 >
-                  Today
+                  TODAY
                 </button>
                 <button
                   type="button"
                   aria-label="Next month"
                   onClick={() => setCursor((c) => addMonths(c, 1))}
-                  className="px-2.5 py-1 hover:bg-paper"
+                  className={`${pillBase} ${pillIdle}`}
                 >
                   →
                 </button>
-              </div>
+              </>
             )}
           </div>
         </div>
 
         {view === "month" ? (
           <div>
-            <div className="grid grid-cols-7 border-b border-rule">
+            <div className="grid grid-cols-7 gap-px border-b border-edge bg-edge">
               {WEEKDAYS.map((d) => (
-                <div key={d} className="stamp border-0 py-2 text-center text-ink-faint">
+                <div
+                  key={d}
+                  className="bg-panel py-1.5 text-center font-mono text-[9px] uppercase tracking-[0.16em] text-text-faint"
+                >
                   {d}
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7">
+            <div className="grid grid-cols-7 gap-px bg-edge">
               {gridDays.map((day) => {
                 const key = format(day, "yyyy-MM-dd");
                 const dayEvents = byDay.get(key) ?? [];
@@ -197,34 +222,30 @@ export default function CalendarView({
                 return (
                   <div
                     key={key}
-                    className={`min-h-[6.5rem] border-b border-r border-rule-soft p-1.5 last:border-r-0 ${
-                      inMonth ? "" : "bg-paper/50"
+                    className={`min-h-[90px] px-1.5 py-[5px] ${
+                      inMonth ? "bg-cell" : "bg-cell-out"
                     }`}
                   >
                     <span
-                      className={`tabular inline-flex h-6 w-6 items-center justify-center rounded-full text-xs ${
+                      className={`inline-block pb-px font-mono text-[11px] ${
                         today
-                          ? "border-2 border-accent font-bold text-accent"
+                          ? "border-b-2 border-accent text-accent"
                           : inMonth
-                            ? "text-ink"
-                            : "text-ink-faint"
+                            ? "text-text"
+                            : "text-text-faint"
                       }`}
                     >
                       {format(day, "d")}
                     </span>
-                    <div className="mt-1 space-y-1">
+                    <div className="mt-[5px] flex flex-col gap-[3px]">
                       {dayEvents.slice(0, 3).map((event) => {
                         const color = getColor(courseFor(event.courseId)?.color ?? "");
                         return (
                           <div
                             key={event.id + key}
                             title={`${courseFor(event.courseId)?.name ?? ""} — ${event.title} (${EVENT_TYPE_LABELS[event.type]})`}
-                            className="truncate rounded px-1.5 py-0.5 text-[11px] leading-tight"
-                            style={{
-                              backgroundColor: color.tint,
-                              color: color.ink,
-                              borderLeft: `3px solid ${color.ink}`,
-                            }}
+                            className="truncate rounded-[3px] px-[5px] py-0.5 text-[10px] font-semibold leading-[1.2]"
+                            style={{ backgroundColor: color.tint, color: "#10141b" }}
                           >
                             {event.title}
                           </div>
@@ -234,9 +255,9 @@ export default function CalendarView({
                         <button
                           type="button"
                           onClick={() => setView("agenda")}
-                          className="tabular text-[10px] text-ink-soft hover:text-ink"
+                          className="text-left font-mono text-[9px] text-text-faint transition-colors duration-[120ms] hover:text-text-soft"
                         >
-                          +{dayEvents.length - 3} more
+                          +{dayEvents.length - 3} MORE
                         </button>
                       )}
                     </div>
@@ -246,9 +267,9 @@ export default function CalendarView({
             </div>
           </div>
         ) : (
-          <div className="max-h-[34rem] overflow-y-auto px-5 py-3">
+          <div className="max-h-[34rem] overflow-y-auto px-4 py-2">
             {agendaGroups.length === 0 && (
-              <p className="py-8 text-center text-sm text-ink-soft">
+              <p className="py-8 text-center text-[11.5px] text-text-soft">
                 Nothing to show — upload a syllabus or unhide a course.
               </p>
             )}
@@ -259,15 +280,23 @@ export default function CalendarView({
               return (
                 <div
                   key={group.date}
-                  className={`flex gap-4 border-b border-dashed border-rule-soft py-2.5 ${
+                  className={`flex gap-4 border-b border-edge-soft py-2.5 ${
                     past ? "opacity-45" : ""
                   }`}
                 >
                   <div className="w-20 shrink-0 pt-0.5 text-right">
-                    <div className={`tabular text-xs ${today ? "font-bold text-accent" : "text-ink-soft"}`}>
+                    <div
+                      className={`font-mono text-[10px] uppercase tracking-[0.1em] ${
+                        today ? "text-accent" : "text-text-faint"
+                      }`}
+                    >
                       {format(date, "EEE")}
                     </div>
-                    <div className={`font-display text-lg leading-tight ${today ? "text-accent" : ""}`}>
+                    <div
+                      className={`font-display text-[15px] leading-tight ${
+                        today ? "text-accent" : ""
+                      }`}
+                    >
                       {format(date, "MMM d")}
                     </div>
                   </div>
@@ -278,21 +307,23 @@ export default function CalendarView({
                       return (
                         <div key={event.id} className="group flex items-start gap-2.5">
                           <span
-                            className="mt-1.5 h-3 w-1 shrink-0 rounded-full"
-                            style={{ backgroundColor: color.ink }}
+                            className="mt-[5px] h-3 w-1 shrink-0 rounded-full"
+                            style={{ backgroundColor: color.tint }}
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm leading-snug">
+                            <p className="text-[12.5px] leading-snug">
                               {event.title}
                               {event.endDate && (
-                                <span className="tabular ml-2 text-xs text-ink-soft">
+                                <span className="ml-2 font-mono text-[10px] text-text-soft">
                                   → {format(parseISO(event.endDate), "MMM d")}
                                 </span>
                               )}
                             </p>
-                            <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-ink-soft">
-                              <span style={{ color: color.ink }}>{course?.name}</span>
-                              <span className="stamp text-ink-faint" style={{ fontSize: "9px" }}>
+                            <p className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-text-soft">
+                              <span className="font-mono text-[10px]" style={{ color: color.tint }}>
+                                {course?.name}
+                              </span>
+                              <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-text-faint">
                                 {EVENT_TYPE_LABELS[event.type]}
                               </span>
                               {event.description && <span>{event.description}</span>}
@@ -302,7 +333,7 @@ export default function CalendarView({
                             type="button"
                             aria-label="Delete event"
                             onClick={() => onDeleteEvent(event.id)}
-                            className="px-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100"
+                            className="px-1 text-text-faint opacity-0 transition-opacity duration-[120ms] hover:text-accent group-hover:opacity-100"
                           >
                             ✕
                           </button>
@@ -317,11 +348,13 @@ export default function CalendarView({
         )}
       </div>
 
-      {/* ── Sidebar: courses ───────────────────────────── */}
-      <aside className="space-y-4">
-        <div className="paper-card p-4">
-          <h3 className="stamp inline-block text-ink-soft">Courses</h3>
-          <ul className="mt-3 space-y-2">
+      {/* ── Sidebar ────────────────────────────────────── */}
+      <aside className="flex flex-col gap-3">
+        <div className="rounded-[6px] border border-edge bg-panel p-[14px]">
+          <h3 className="font-mono text-[9px] uppercase tracking-[0.16em] text-text-faint">
+            ▮ Courses
+          </h3>
+          <ul className="mt-[11px] flex flex-col gap-[9px]">
             {courses.map((course) => {
               const color = getColor(course.color);
               const count = events.filter((e) => e.courseId === course.id && e.included).length;
@@ -332,16 +365,23 @@ export default function CalendarView({
                     type="button"
                     onClick={() => toggleCourse(course.id)}
                     title={isHidden ? "Show on calendar" : "Hide from calendar"}
-                    className={`flex min-w-0 flex-1 items-center gap-2 text-left text-sm ${
+                    className={`flex min-w-0 flex-1 items-center gap-2 text-left transition-opacity duration-[120ms] ${
                       isHidden ? "opacity-40" : ""
                     }`}
                   >
                     <span
-                      className="h-3.5 w-3.5 shrink-0 rounded-full border-2"
-                      style={{ backgroundColor: color.tint, borderColor: color.ink }}
+                      className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
+                      style={{ backgroundColor: color.tint }}
                     />
-                    <span className="truncate">{course.name}</span>
-                    <span className="tabular ml-auto text-xs text-ink-faint">{count}</span>
+                    <span
+                      className="truncate font-mono text-[11.5px]"
+                      style={{ color: color.tint }}
+                    >
+                      {course.name}
+                    </span>
+                    <span className="ml-auto font-mono text-[10px] text-text-faint">
+                      {count}
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -351,7 +391,7 @@ export default function CalendarView({
                         onRemoveCourse(course.id);
                       }
                     }}
-                    className="text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100"
+                    className="text-text-faint opacity-0 transition-opacity duration-[120ms] hover:text-accent group-hover:opacity-100"
                   >
                     ✕
                   </button>
@@ -362,18 +402,38 @@ export default function CalendarView({
           <button
             type="button"
             onClick={onAddSyllabus}
-            className="mt-4 w-full rounded-md border border-dashed border-ink-soft px-3 py-2 text-sm text-ink-soft hover:border-ink hover:text-ink"
+            className="mt-[13px] w-full rounded-[4px] border border-dashed border-dash p-2 text-center font-mono text-[9.5px] tracking-[0.08em] text-text-soft transition-colors duration-[120ms] hover:text-text"
           >
-            + Add another syllabus
+            + ADD SYLLABUS
           </button>
         </div>
 
-        <div className="paper-card rotate-[-0.6deg] p-4 text-xs leading-relaxed text-ink-soft">
-          <p className="font-display text-sm text-ink">Tip</p>
-          <p className="mt-1">
-            Click a course to hide or show it. Switch to Agenda to see the whole
-            semester as a list — past dates fade out automatically.
+        <div className="rounded-[6px] border border-edge bg-panel p-[14px]">
+          <h3 className="font-mono text-[9px] uppercase tracking-[0.16em] text-text-faint">
+            ▮ Export
+          </h3>
+          <button
+            type="button"
+            onClick={exportIcs}
+            disabled={!events.some((e) => e.included)}
+            title="Download an .ics file, then import it into your calendar app"
+            className="mt-[11px] w-full rounded-[4px] border border-edge p-2 text-center font-mono text-[9.5px] tracking-[0.08em] text-text-soft transition-colors duration-[120ms] hover:border-dash hover:text-text disabled:opacity-40"
+          >
+            ↓ DOWNLOAD .ICS
+          </button>
+          <p className="mt-2 text-[10.5px] leading-[1.5] text-text-soft">
+            Imports into Google Calendar, Apple Calendar, and Outlook.
           </p>
+        </div>
+
+        <div className="rounded-[6px] border border-edge bg-panel p-[14px] text-[11px] leading-[1.55] text-text-soft">
+          <span className="font-mono text-[9px] tracking-[0.12em] text-mint">TIP —</span>{" "}
+          click a course to hide or show it. Agenda view lists the whole semester;
+          past dates fade out.
+        </div>
+
+        <div className="px-0.5 font-mono text-[9px] tracking-[0.08em] text-text-faint">
+          ● LOCAL ONLY — DATA NEVER LEAVES THIS MACHINE
         </div>
       </aside>
     </div>
