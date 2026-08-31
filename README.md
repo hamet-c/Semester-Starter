@@ -45,11 +45,6 @@ The upload screen shows a green "AI parsing ready" stamp when the key is
 active. Only the syllabus text is sent to the Claude API; your calendar data
 never leaves your machine.
 
-## Sample syllabi
-
-Two test files live in `samples/` — try uploading
-`samples/HIST210-syllabus.txt` or `samples/BIO201-syllabus.pdf`.
-
 ## Smoke test
 
 With the dev server running:
