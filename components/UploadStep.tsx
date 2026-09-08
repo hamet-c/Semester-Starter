@@ -133,7 +133,7 @@ export default function UploadStep({ courseCount, aiEnabled, onParsed }: Props) 
               </p>
               <p className="mt-[5px] text-[11px] text-text-soft">
                 {aiEnabled
-                  ? "Claude is extracting every date — this can take up to a minute."
+                  ? "The AI is extracting every date — this can take up to a minute."
                   : "Scanning for dates…"}
               </p>
             </div>
@@ -164,7 +164,7 @@ export default function UploadStep({ courseCount, aiEnabled, onParsed }: Props) 
           ) : (
             <span
               className="text-text-soft"
-              title="Add ANTHROPIC_API_KEY to .env.local for AI parsing"
+              title="Add AI_API_KEY to .env.local for AI parsing"
             >
               ● BASIC MODE — NO API KEY
             </span>

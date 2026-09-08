@@ -9,7 +9,6 @@
     "test:e2e": "node scripts/e2e-smoke.cjs"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.93.0",
     "chrono-node": "^2.7.0",
     "date-fns": "^4.1.0",
     "mammoth": "^1.8.0",

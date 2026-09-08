@@ -142,7 +142,7 @@ export default function Home() {
       {step !== "calendar" && (
         <footer className="px-[22px] pb-[18px] text-center font-mono text-[9px] tracking-[0.08em] text-text-faint">
           ● LOCAL ONLY — DATA NEVER LEAVES THIS MACHINE
-          {aiEnabled ? " (SYLLABUS TEXT IS SENT TO THE CLAUDE API FOR PARSING)" : ""}
+          {aiEnabled ? " (SYLLABUS TEXT IS SENT TO THE AI PROVIDER FOR PARSING)" : ""}
         </footer>
       )}
     </div>

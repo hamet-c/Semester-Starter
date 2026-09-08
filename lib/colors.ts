@@ -1,13 +1,19 @@
-/** Print-marker course palette: strong ink for text/borders, soft tint for fills. */
+/**
+ * Course palette for the dark "Night Desk" theme.
+ * `tint` is the display color: chip fills (with near-black text), swatches,
+ * legend text, and agenda markers. Every tint keeps at least 5.5:1 contrast
+ * against both the page background (#0f1218) and the chip text (#10141b).
+ * `ink` is a deeper shade of the same hue for borders or hover states.
+ */
 export const COURSE_COLORS = [
-  { id: "vermilion", label: "Vermilion", ink: "#c13a1b", tint: "#f8e4dd" },
-  { id: "cobalt", label: "Cobalt", ink: "#2855a5", tint: "#e2eaf7" },
-  { id: "forest", label: "Forest", ink: "#2c6e49", tint: "#e0efe5" },
-  { id: "ochre", label: "Ochre", ink: "#a06d05", tint: "#f6ecd4" },
-  { id: "plum", label: "Plum", ink: "#79458f", tint: "#f0e5f5" },
-  { id: "teal", label: "Teal", ink: "#0f766e", tint: "#dcefed" },
-  { id: "rose", label: "Rose", ink: "#b03060", tint: "#f9e3ec" },
-  { id: "umber", label: "Umber", ink: "#7c4a21", tint: "#f2e6da" },
+  { id: "vermilion", label: "Vermilion", ink: "#d92f3b", tint: "#ff4f5a" },
+  { id: "cobalt", label: "Cobalt", ink: "#2f7fe6", tint: "#5aa9ff" },
+  { id: "forest", label: "Forest", ink: "#22a35a", tint: "#4ade80" },
+  { id: "ochre", label: "Ochre", ink: "#d99e0b", tint: "#ffc531" },
+  { id: "plum", label: "Plum", ink: "#8f5cf0", tint: "#b98bff" },
+  { id: "teal", label: "Teal", ink: "#12b39a", tint: "#2ee6c5" },
+  { id: "rose", label: "Rose", ink: "#e6478c", tint: "#ff6fae" },
+  { id: "umber", label: "Umber", ink: "#d9691f", tint: "#ff9142" },
 ] as const;
 
 export type CourseColorId = (typeof COURSE_COLORS)[number]["id"];

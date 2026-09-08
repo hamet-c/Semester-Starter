@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       const body: ParseResponse = {
         events: ruleEvents,
         parserUsed: "rules",
-        warning: "AI parsing failed, so basic date detection was used instead. Review the results carefully.",
+        warning: `AI parsing failed, so basic date detection was used instead. Review the results carefully. (${err instanceof Error ? err.message : String(err)})`,
       };
       return NextResponse.json(body);
     }
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     events: ruleEvents,
     parserUsed: "rules",
     warning:
-      "Basic date detection was used (no ANTHROPIC_API_KEY configured). Add a key to .env.local for much more accurate AI parsing.",
+      "Basic date detection was used (no AI_API_KEY configured). Add a free Gemini key to .env.local for much more accurate AI parsing.",
   };
   return NextResponse.json(body);
 }

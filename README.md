@@ -35,15 +35,38 @@ the event type in the description.
 ## AI parsing (recommended)
 
 Out of the box the app uses rule-based date detection, which works but is
-imperfect on messy syllabi. For much more accurate parsing:
+imperfect on messy syllabi. For much more accurate parsing, add a free
+Google Gemini API key:
 
-1. Copy `.env.local.example` to `.env.local`
-2. Paste your Anthropic API key (from https://platform.claude.com/)
+1. Get a key at https://aistudio.google.com/apikey (free tier, no card needed)
+2. Copy `.env.local.example` to `.env.local` and paste the key as `AI_API_KEY`
 3. Restart the dev server
 
-The upload screen shows a green "AI parsing ready" stamp when the key is
-active. Only the syllabus text is sent to the Claude API; your calendar data
-never leaves your machine.
+The upload screen shows a green "AI READY" stamp when the key is active. Only
+the syllabus text is sent to the AI provider; your calendar data never leaves
+your machine.
+
+### Using a different provider
+
+The parser talks to any OpenAI-compatible chat-completions endpoint, so you
+can point it elsewhere by adding two more variables to `.env.local`:
+
+| Provider                | `AI_BASE_URL`                                              | `AI_MODEL` example         |
+| ----------------------- | ---------------------------------------------------------- | -------------------------- |
+| Google Gemini (default) | `https://generativelanguage.googleapis.com/v1beta/openai`  | `gemini-3.8-flash`         |
+| Groq (free tier)        | `https://api.groq.com/openai/v1`                           | `llama-3.3-70b-versatile`  |
+| OpenRouter              | `https://openrouter.ai/api/v1`                             | any model ending in `:free` |
+| OpenAI                  | `https://api.openai.com/v1`                                | `gpt-5-mini`               |
+
+`AI_MODEL` may be a comma-separated list; the parser tries each model in
+order. The default is `gemini-3.8-flash,gemini-3.7-flash,gemini-3.5-flash-lite`
+because Gemini's free tier often answers "high demand" (HTTP 503) for the
+newest Flash model at busy times. Flash-Lite is the fastest (a few seconds per
+syllabus), so set `AI_MODEL=gemini-3.5-flash-lite` if you'd rather trade a
+little accuracy for speed.
+
+If every model fails, the app falls back to rule-based parsing and the warning
+on the review screen names each model and the provider's reason.
 
 ## Smoke test
 
